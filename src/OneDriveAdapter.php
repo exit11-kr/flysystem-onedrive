@@ -118,7 +118,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
     /**
      * @throws Exception|GuzzleException
      */
-    public function write(string $path, string $contents, Config $config = null): void
+    public function write(string $path, string $contents, ?Config $config = null): void
     {
         if (strlen($contents) > 4194304) {
             $stream = fopen('php://temp', 'r+');
@@ -164,7 +164,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
      * @param $contents
      * @throws Exception|GuzzleException
      */
-    public function writeStream(string $path, $contents, Config $config = null): void
+    public function writeStream(string $path, $contents, ?Config $config = null): void
     {
         $path = trim($path, '/');
         $this->ensureValidPath($path);
@@ -195,7 +195,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
         ];
 
         $response = $http::withHeaders($headers)
-            ->withBody($chunk,'application/octet-stream')
+            ->withBody($chunk, 'application/octet-stream')
             ->timeout($this->options['request_timeout'])
             ->put($upload_url);
 
@@ -242,7 +242,6 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
         if ($response->status() !== 202) {
             throw new Exception('Unknown error occurred while trying to upload file chunk. HTTP status code is ' . $response->status());
         }
-
     }
 
     /**
@@ -387,8 +386,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
                     ? $item->getFile()->getMimeType()
                     : null,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e);
         }
     }
@@ -407,8 +405,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
                     ->getLastModifiedDateTime()
                     ->getTimestamp(),
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e);
         }
     }
@@ -425,8 +422,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
                     $this->getUrlToPath($path)
                 )->getSize(),
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e);
         }
     }
@@ -450,18 +446,17 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
                 $items = array_merge($items, $request->getPage());
             }
             if ($deep) {
-                $folders = array_filter($items, fn ($item) => $item->getFolder() !== null);
+                $folders = array_filter($items, fn($item) => $item->getFolder() !== null);
                 while (count($folders)) {
                     $folder = array_pop($folders);
                     $folder_path = $folder->getParentReference()->getPath() . DIRECTORY_SEPARATOR . $folder->getName();
                     $children = $this->getChildren($folder_path);
                     $items = array_merge($items, $children);
-                    $folders = array_merge($folders, array_filter($children, fn ($child) => $child->getFolder() !== null));
+                    $folders = array_merge($folders, array_filter($children, fn($child) => $child->getFolder() !== null));
                 }
             }
 
             return $this->convertDriveItemsToStorageAttributes($items);
-
         } catch (Exception $e) {
             throw new Exception($e);
         }
@@ -512,7 +507,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
     /**
      * @throws Exception
      */
-    public function move(string $source, string $destination, Config $config = null): void
+    public function move(string $source, string $destination, ?Config $config = null): void
     {
         try {
             $destination = trim($destination, '/');
@@ -539,7 +534,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
                 ])
                 ->execute()
                 ->getBody();
-        } catch (Exception|GuzzleException $e) {
+        } catch (Exception | GuzzleException $e) {
             throw new Exception($e);
         }
     }
@@ -547,7 +542,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
     /**
      * @throws Exception
      */
-    public function copy(string $source, string $destination, Config $config = null): void
+    public function copy(string $source, string $destination, ?Config $config = null): void
     {
         try {
             $destination = trim($destination, '/');
@@ -575,8 +570,7 @@ class OneDriveAdapter extends OneDriveUtilityAdapter implements FilesystemAdapte
                 ])
                 ->execute()
                 ->getBody();
-
-        } catch (Exception|GuzzleException $e) {
+        } catch (Exception | GuzzleException $e) {
             throw new Exception($e);
         }
     }
